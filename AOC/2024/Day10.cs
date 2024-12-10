@@ -108,19 +108,16 @@ namespace AOC._2024
             {
                 var (current, visited) = stack.Pop();
 
-                // Ziel erreicht
                 if (topographicMap[current.Y][current.X] == 9)
                 {
                     trails++;
                     continue;
                 }
 
-                // Nachbarn erkunden
                 foreach (Point neighbour in GetPossibleNeighbours(topographicMap, current))
                 {
                     if (!visited.Contains(neighbour))
                     {
-                        // Kopiere den `visited`-Status für diesen Pfad
                         var newVisited = new HashSet<Point>(visited) { neighbour };
                         stack.Push((neighbour, newVisited));
                     }
