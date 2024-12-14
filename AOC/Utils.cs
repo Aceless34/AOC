@@ -53,5 +53,36 @@ namespace AOC
             }
         }
 
+        public static bool InBounds(object[,] map, Vector2 p)
+        {
+            return p.X >= 0 && p.X < map.GetLength(0) && p.Y >= 0 && p.Y < map.GetLength(1);
+        }
+
+        public static List<Vector2> GetNeighbouringCells(object[,] map, Vector2 p, bool diagonals = false)
+        {
+            List<Vector2> cells = new List<Vector2>();
+            List<Vector2> dirs = [
+                new Vector2(1, 0),
+                new Vector2(-1, 0),
+                new Vector2(0, 1),
+                new Vector2(0, -1),
+            ];
+            if (diagonals)
+            {
+                dirs.Add(new Vector2(-1, -1));
+                dirs.Add(new Vector2(1, -1));
+                dirs.Add(new Vector2(-1, 1));
+                dirs.Add(new Vector2(1, 1));
+            }
+
+            foreach (var dir in dirs)
+            {
+                Vector2 n = p + dir;
+                if (InBounds(map, n))
+                    cells.Add(n);
+            }
+
+            return cells;
+        }
     }
 }
