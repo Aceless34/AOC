@@ -14,6 +14,11 @@ namespace AOC
             return File.ReadLines(path).ToList();
         }
 
+        public static string ReadString(string path)
+        {
+            return File.ReadAllText(path);
+        }
+
         public static char[][] CreateCharMap(List<string> lines)
         {
             char[][] charMap = new char[lines.Count][];
@@ -23,7 +28,21 @@ namespace AOC
             return charMap;
         }
 
-        internal static int[][] CreateIntMap(List<string> lines)
+        public static char[,] CreateCharMap2(List<string> lines)
+        {
+            char[,] charMap = new char[lines.Count, lines[0].Length];
+
+            for (int i = 0; i < lines.Count; i++)
+            {
+                for (int j = 0; j < lines[i].Length; j++)
+                {
+                    charMap[i, j] = lines[i][j];
+                }
+            }
+            return charMap;
+        }
+
+        public static int[][] CreateIntMap(List<string> lines)
         {
             int[][] intMap = new int[lines.Count][];
             for (int i = 0; i < lines.Count; i++)
@@ -36,5 +55,19 @@ namespace AOC
             }
             return intMap;
         }
+
+        public static int[,] CreateIntMap2(List<string> lines)
+        {
+            int[,] intMap = new int[lines.Count, lines[0].Length];
+            for (int i = 0; i < lines.Count; i++)
+            {
+                for (int j = 0; j < lines[i].Length; j++)
+                {
+                    intMap[i, j] = int.Parse(lines[i][j].ToString());
+                }
+            }
+            return intMap;
+        }
+
     }
 }
