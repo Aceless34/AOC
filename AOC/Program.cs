@@ -24,6 +24,16 @@ namespace AOC
                 {12, new Day12() },
                 {13, new Day13() },
                 {14, new Day14() },
+                {15, new Day15() },
+                {16, new Day16() },
+                {17, new Day17() },
+                {18, new Day18() },
+                {19, new Day19() },
+                {20, new Day20() },
+                {21, new Day21() },
+                {22, new Day22() },
+                {23, new Day23() },
+                {24, new Day24() }
             };
 
             //2024
