@@ -31,25 +31,27 @@ namespace AOC
             bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Png);
         }
 
-        public static void PrintMap(object[,] map)
+        public static void PrintMap<T>(T[,] map)
         {
             for(int i = 0;  i < map.GetLength(0); i++)
             {
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    Console.WriteLine(map[i, j].ToString());
+                    Console.Write(map[i, j].ToString());
                 }
+                Console.WriteLine();
             }
         }
 
-        public static void PrintMap(object[][] map)
+        public static void PrintMap<T>(T[][] map)
         {
             for (int i = 0; i < map.Length; i++)
             {
                 for (int j = 0; j < map[i].Length; j++)
                 {
-                    Console.WriteLine(map[i][j].ToString());
+                    Console.Write(map[i][j].ToString());
                 }
+                Console.WriteLine();
             }
         }
 
@@ -84,5 +86,39 @@ namespace AOC
 
             return cells;
         }
+
+        public static Vector2 FindObjectPositionInMap<T>(T[,] map, T obj)
+        {
+            for (int i = 0; i < map.GetLength(0); i++)
+            {
+                for (int j = 0; j < map.GetLength(1); j++)
+                {
+                    if (EqualityComparer<T>.Default.Equals(obj, map[i, j]))
+                    {
+                        return new Vector2(i, j);
+                    }
+                }
+            }
+
+            return new Vector2(-1, -1);
+        }
+
+        public static List<Vector2> FindAllObjectsPositionInMap<T>(T[,] map, T obj)
+        {
+            var list = new List<Vector2>();
+            for (int i = 0; i < map.GetLength(0); i++)
+            {
+                for (int j = 0; j < map.GetLength(1); j++)
+                {
+                    if (EqualityComparer<T>.Default.Equals(obj, map[i, j]))
+                    {
+                        list.Add(new Vector2(i, j));
+                    }
+                }
+            }
+
+            return list;
+        }
+
     }
 }
