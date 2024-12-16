@@ -55,12 +55,12 @@ namespace AOC
             }
         }
 
-        public static bool InBounds(object[,] map, Vector2 p)
+        public static bool InBounds<T>(T[,] map, Vector2 p)
         {
             return p.X >= 0 && p.X < map.GetLength(0) && p.Y >= 0 && p.Y < map.GetLength(1);
         }
 
-        public static List<Vector2> GetNeighbouringCells(object[,] map, Vector2 p, bool diagonals = false)
+        public static List<Vector2> GetNeighbouringCells<T>(T[,] map, Vector2 p, bool diagonals = false)
         {
             List<Vector2> cells = new List<Vector2>();
             List<Vector2> dirs = [
@@ -80,7 +80,7 @@ namespace AOC
             foreach (var dir in dirs)
             {
                 Vector2 n = p + dir;
-                if (InBounds(map, n))
+                if (InBounds<T>(map, n))
                     cells.Add(n);
             }
 
@@ -95,7 +95,7 @@ namespace AOC
                 {
                     if (EqualityComparer<T>.Default.Equals(obj, map[i, j]))
                     {
-                        return new Vector2(i, j);
+                        return new Vector2(j, i);
                     }
                 }
             }
@@ -112,7 +112,7 @@ namespace AOC
                 {
                     if (EqualityComparer<T>.Default.Equals(obj, map[i, j]))
                     {
-                        list.Add(new Vector2(i, j));
+                        list.Add(new Vector2(j, i));
                     }
                 }
             }
