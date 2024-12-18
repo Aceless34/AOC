@@ -63,10 +63,12 @@ namespace AOC.PathFinding
             this.end = map[(int)end.Y, (int)end.X];
             openList.Add(this.start);
 
-            AStarNode curr;
+            AStarNode? curr;
             while (openList.Count > 0)
             {
                 curr = getTileWithLowestTotal();
+                if (curr == null)
+                    throw new NullReferenceException("No neighbours");
 
                 if(curr.Pos == end)
                 {
@@ -101,12 +103,15 @@ namespace AOC.PathFinding
 
         private List<AStarNode> shortestPath()
         {
+            if (end == null || start == null)
+                throw new NullReferenceException("End and Start can't be null");
+
             AStarNode? curr = end;
             List<AStarNode> path = [];
 
             path.Add(curr);
 
-            while (curr != start)
+            while (curr != start && curr != null)
             {
                 path.Add(curr);
                 curr = Utils.GetNeighbouringCells(map, curr.Pos)
@@ -114,22 +119,6 @@ namespace AOC.PathFinding
                     .Where(n => closedList.Contains(n))
                     .OrderBy(n => n.Cost)
                     .FirstOrDefault();
-
-                /*
-                IEnumerable<AStarNode> neighbours = Utils.GetNeighbouringCells(map, curr.Pos).Select(n => map[(int)n.Y, (int)n.X]);
-                foreach (var neigh in neighbours)
-                {
-                    if (openList.Contains(neigh) || closedList.Contains(neigh))
-                    {
-                        if (neigh.Cost <= curr.Cost && neigh.Cost > 0)
-                        {
-                            curr = neigh;
-                            
-                            break;
-                        }
-                    }
-                }
-                */
             }
             path.Add(start);
             path.Reverse();
@@ -141,7 +130,7 @@ namespace AOC.PathFinding
             return (int)Math.Abs((end.X - pos.X) + (end.Y - pos.Y));
         }
 
-        private AStarNode getTileWithLowestTotal()
+        private AStarNode? getTileWithLowestTotal()
         {
             return openList.OrderBy(n => n.Total).ThenBy(n => n.Heuristic).FirstOrDefault();
         }
