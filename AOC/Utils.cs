@@ -13,7 +13,7 @@ namespace AOC
 
         public static Bitmap CreateBitmap<T>(List<T> objects, int width, int height,Func<T, Vector2> getPos,  Func<T, Color> getColor)
         {
-            using Bitmap bitmap = new Bitmap(width, height);
+            Bitmap bitmap = new Bitmap(width, height);
             using Graphics g = Graphics.FromImage(bitmap);
 
             g.Clear(Color.White);
