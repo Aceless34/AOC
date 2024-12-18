@@ -26,9 +26,10 @@ namespace AOC
             return bitmap;
         }
 
-        public static void SaveBitmap(Bitmap bitmap, string path)
+        public static void SaveBitmap(Bitmap bitmap, string path, string name)
         {
-            bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+            Directory.CreateDirectory(path);
+            bitmap.Save(path + "\\" + name, System.Drawing.Imaging.ImageFormat.Png);
         }
 
         public static void PrintMap<T>(T[,] map)
