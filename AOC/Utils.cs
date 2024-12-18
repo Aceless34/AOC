@@ -29,7 +29,7 @@ namespace AOC
         public static void SaveBitmap(Bitmap bitmap, string path, string name)
         {
             Directory.CreateDirectory(path);
-            bitmap.Save(path + "\\" + name, System.Drawing.Imaging.ImageFormat.Png);
+            bitmap?.Save(path + "\\" + name, System.Drawing.Imaging.ImageFormat.Png);
         }
 
         public static void PrintMap<T>(T[,] map)
@@ -38,7 +38,7 @@ namespace AOC
             {
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    Console.Write(map[i, j].ToString());
+                    Console.Write(map[i, j]?.ToString());
                 }
                 Console.WriteLine();
             }

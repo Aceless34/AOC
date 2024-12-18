@@ -13,6 +13,7 @@ namespace AOC.PathFinding
         public int Cost;
         public int Heuristic;
         public Vector2 Pos;
+        public AStarNode? Parent;
         public int Total => Cost + Heuristic;
     }
 
@@ -26,7 +27,7 @@ namespace AOC.PathFinding
         List<AStarNode> openList;
         List<AStarNode> closedList;
 
-        AStarNode start, end;
+        AStarNode? start, end;
 
         public AStar(int[,] map)
         {
@@ -48,6 +49,9 @@ namespace AOC.PathFinding
                     };
                 }
             }
+
+            openList = new();
+            closedList = new();
         }
 
         public List<Vector2> FindPath(Vector2 start, Vector2 end)
@@ -73,51 +77,61 @@ namespace AOC.PathFinding
                 closedList.Add(curr);
 
                 List<Vector2> neighbours = Utils.GetNeighbouringCells(map, curr.Pos).Where(p => map[(int)p.Y, (int)p.X].Value == 0).ToList();
-                foreach(var neigh in neighbours)
+                foreach (var neigh in neighbours)
                 {
-                    if(!openList.Any(p => p.Pos == neigh) && !closedList.Any(p => p.Pos == neigh))
+                    AStarNode n = map[(int)neigh.Y, (int)neigh.X];
+                    int newCost = curr.Cost + 1;
+
+                    if (closedList.Contains(n)) continue;
+
+                    if (!openList.Contains(n) || newCost < n.Cost)
                     {
-                        AStarNode n = map[(int)neigh.Y, (int)neigh.X];
-                        n.Cost = curr.Cost + 1;
+                        n.Cost = newCost;
                         n.Heuristic = ManhattanDistance(n.Pos, end);
-                        openList.Add(n);
+                        n.Parent = curr; // Speichere den aktuellen Knoten als Parent
+
+                        if (!openList.Contains(n))
+                            openList.Add(n);
                     }
                 }
 
             }
-            return [];
+            return new();
         }
 
         private List<AStarNode> shortestPath()
         {
-            bool startFound = false;
-
-            AStarNode curr = end;
+            AStarNode? curr = end;
             List<AStarNode> path = [];
 
             path.Add(curr);
 
-            while (!startFound)
+            while (curr != start)
             {
+                path.Add(curr);
+                curr = Utils.GetNeighbouringCells(map, curr.Pos)
+                    .Select(n => map[(int)n.Y, (int)n.X])
+                    .Where(n => closedList.Contains(n))
+                    .OrderBy(n => n.Cost)
+                    .FirstOrDefault();
+
+                /*
                 IEnumerable<AStarNode> neighbours = Utils.GetNeighbouringCells(map, curr.Pos).Select(n => map[(int)n.Y, (int)n.X]);
                 foreach (var neigh in neighbours)
                 {
-                    if(start == neigh)
-                    {
-                        startFound = true;
-                        break;
-                    }
                     if (openList.Contains(neigh) || closedList.Contains(neigh))
                     {
                         if (neigh.Cost <= curr.Cost && neigh.Cost > 0)
                         {
                             curr = neigh;
-                            path.Add(neigh);
+                            
                             break;
                         }
                     }
                 }
+                */
             }
+            path.Add(start);
             path.Reverse();
             return path;
         }
@@ -129,17 +143,7 @@ namespace AOC.PathFinding
 
         private AStarNode getTileWithLowestTotal()
         {
-            int lowest = int.MaxValue;
-            AStarNode lowestNode = new AStarNode();
-            foreach(var node in openList)
-            {
-                if(node.Total <= lowest)
-                {
-                    lowest = node.Total;
-                    lowestNode = node;
-                }
-            }
-            return lowestNode;
+            return openList.OrderBy(n => n.Total).ThenBy(n => n.Heuristic).FirstOrDefault();
         }
 
     }
