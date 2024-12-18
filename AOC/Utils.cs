@@ -11,14 +11,14 @@ namespace AOC
     public static class Utils
     {
 
-        public static Bitmap CreateBitmap(List<Object> objects, int width, int height,Func<Object, Vector2> getPos,  Func<Object, Color> getColor)
+        public static Bitmap CreateBitmap<T>(List<T> objects, int width, int height,Func<T, Vector2> getPos,  Func<T, Color> getColor)
         {
             using Bitmap bitmap = new Bitmap(width, height);
             using Graphics g = Graphics.FromImage(bitmap);
 
             g.Clear(Color.White);
 
-            foreach (Object obj in objects) { 
+            foreach (T obj in objects) { 
                 Vector2 pos = getPos(obj);
                 bitmap.SetPixel((int)pos.X, (int)pos.Y, getColor(obj));
             }
