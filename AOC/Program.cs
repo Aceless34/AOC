@@ -1,4 +1,6 @@
-﻿using AOC._2024;
+﻿using AOC._2025;
+using System.Linq;
+using System.Reflection;
 
 namespace AOC
 {
@@ -6,50 +8,86 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            int day = DateTime.Now.Day;
+            Console.WriteLine("=== Advent of Code 2025 ===");
 
-            Dictionary<int, Day> days = new Dictionary<int, Day>()
+            var allSolvers = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => typeof(ISolver).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+                .Select(t => (ISolver)Activator.CreateInstance(t))
+                .ToList();
+
+            if (!allSolvers.Any())
             {
-                {1, new Day1() },
-                {2, new Day2() },
-                {3, new Day3() },
-                {4, new Day4() },
-                {5, new Day5() },
-                {6, new Day6() },
-                {7, new Day7() },
-                {8, new Day8() },
-                {9, new Day9() },
-                {10, new Day10() },
-                {11, new Day11() },
-                {12, new Day12() },
-                {13, new Day13() },
-                {14, new Day14() },
-                {15, new Day15() },
-                {16, new Day16() },
-                {17, new Day17() },
-                {18, new Day18() },
-                {19, new Day19() },
-                {20, new Day20() },
-                {21, new Day21() },
-                {22, new Day22() },
-                {23, new Day23() },
-                {24, new Day24() }
-            };
+                Console.WriteLine("Keine Solver gefunden!");
+                return;
+            }
 
-            //2024
-            DateTime time = DateTime.Now;
-            string out1 = days[day].Task1();
-            TimeSpan ts = DateTime.Now - time;
-            Console.WriteLine($"Aufgabe 1: {out1}");
-            Console.WriteLine($"Benötigte Zeit: {ts.ToString()}");
+            // Verfügbare Jahre anzeigen
+            var years = allSolvers.Select(s => s.Year).Distinct().OrderBy(y => y).ToList();
 
-            Console.WriteLine();
+            Console.WriteLine("Verfügbare Jahre:");
+            foreach (var y in years)
+                Console.WriteLine($" - {y}");
 
-            time = DateTime.Now;
-            string out2 = days[day].Task2();
-            TimeSpan ts2 = DateTime.Now - time;
-            Console.WriteLine($"Aufgabe 2: {out2}");
-            Console.WriteLine($"Benötigte Zeit: {ts2.ToString()}");
+            Console.Write("Welches Jahr soll ausgeführt werden? ");
+            if (!uint.TryParse(Console.ReadLine(), out uint year) || !years.Contains(year))
+            {
+                Console.WriteLine("Ungültiges Jahr.");
+                return;
+            }
+
+            // Solver für Jahr filtern
+            var solvers = allSolvers.Where(s => s.Year == year).OrderBy(s => s.Day).ToList();
+
+            Console.Write("Welcher Tag soll ausgeführt werden (1–25)? ");
+            if (!uint.TryParse(Console.ReadLine(), out uint day))
+            {
+                Console.WriteLine("Ungültige Eingabe.");
+                return;
+            }
+
+            var solver = solvers.FirstOrDefault(s => s.Day == day);
+            if (solver == null)
+            {
+                Console.WriteLine($"Kein Solver für Tag {day} gefunden.");
+                return;
+            }
+
+            // Input Datei laden
+            string inputPath = Path.Combine(year.ToString(), "Inputs", $"Day{day}.txt");
+            if (!File.Exists(inputPath))
+            {
+                Console.WriteLine($"Input-Datei fehlt: {inputPath}");
+                return;
+            }
+
+            string input = File.ReadAllText(inputPath).TrimEnd();
+
+            Console.WriteLine($"\n--- Day {solver.Day}: {solver.Title} ---");
+
+            // Part 1
+            try
+            {
+                var result1 = solver.SolvePart1(input);
+                Console.WriteLine($"Part 1: {result1}");
+            }
+            catch (NotImplementedException)
+            {
+                Console.WriteLine("Part 1: Noch nicht implementiert.");
+            }
+
+            // Part 2
+            try
+            {
+                var result2 = solver.SolvePart2(input);
+                Console.WriteLine($"Part 2: {result2}");
+            }
+            catch (NotImplementedException)
+            {
+                Console.WriteLine("Part 2: Noch nicht implementiert.");
+            }
+
+            Console.WriteLine("\nFertig!");
         }
     }
 }

@@ -84,6 +84,13 @@
     <None Update="2024\Files\Day9.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="2025\Inputs\Day1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="2025\Inputs\" />
   </ItemGroup>
 
 </Project>
