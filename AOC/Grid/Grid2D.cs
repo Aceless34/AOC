@@ -10,6 +10,7 @@ namespace AOC.Grid
 {
     public class Grid2D<T>
     {
+        
         private Grid2DNode<T>[,] _grid;
         private int width, height;
 
