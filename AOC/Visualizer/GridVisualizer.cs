@@ -17,6 +17,8 @@ namespace AOC.Visualizer
         private int _gridStartY;
         private string _title = "";
 
+        public T?[,] _lastFrame;
+
         public Dictionary<string, string> InfoPanel { get; } = new();
 
         public int OffsetX { get; set; } = 0;
@@ -30,6 +32,8 @@ namespace AOC.Visualizer
             _grid = grid;
             _charMapper = charMapper;
             _colorMapper = colorMapper ?? (_ => ConsoleColor.White);
+
+            _lastFrame = new T?[grid.Width, grid.Height];
         }
 
         public void Init(string title = "")
@@ -54,30 +58,46 @@ namespace AOC.Visualizer
 
             _gridStartX = Math.Max(_gridStartX, 0);
             _gridStartY = Math.Max(_gridStartY, 1);  // Zeile 1 wegen Titel
+
+            // Force full redraw on first update
+            for (int y = 0; y < _grid.Height; y++)
+                for (int x = 0; x < _grid.Width; x++)
+                    _lastFrame[x, y] = default;
         }
 
         public void Update()
         {
             Console.ResetColor();
 
-            // Grid zeichnen
+            // Nur geänderte Zellen zeichnen
             for (int y = 0; y < _grid.Height; y++)
             {
-                Console.SetCursorPosition(
-                    _gridStartX + OffsetX,
-                    _gridStartY + OffsetY + y
-                );
-
                 for (int x = 0; x < _grid.Width; x++)
                 {
-                    Console.ForegroundColor = _colorMapper(_grid[x, y]);
-                    Console.Write(_charMapper(_grid[x, y]));
+                    var current = _grid[x, y];
+                    var old = _lastFrame[x, y];
+
+                    // Vergleich: wenn unverändert → weiter
+                    if (EqualityComparer<T>.Default.Equals(current, old))
+                        continue;
+
+                    // Neue Zelle zeichnen
+                    Console.SetCursorPosition(
+                        _gridStartX + OffsetX + x,
+                        _gridStartY + OffsetY + y
+                    );
+
+                    Console.ForegroundColor = _colorMapper(current);
+                    Console.Write(_charMapper(current));
+
+                    // Speichern
+                    _lastFrame[x, y] = current;
                 }
             }
 
             Console.ResetColor();
 
-            // Info-Panel (rechts)
+            // InfoPanel neu zeichnen
             int infoStartX = _gridStartX + _grid.Width + 4;
             int infoStartY = _gridStartY;
 
@@ -89,7 +109,7 @@ namespace AOC.Visualizer
                 Console.Write($"{pair.Key}: ");
 
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.Write(pair.Value + "       ");
+                Console.Write(pair.Value + "   "); // überschreibt alte Werte
 
                 i++;
             }
