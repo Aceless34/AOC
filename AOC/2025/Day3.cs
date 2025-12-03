@@ -2,69 +2,69 @@
 using AOC.Visualizer;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AOC._2025
 {
-    internal class Day3 : ISolver
+    public class Day3 : ISolver
     {
         public uint Day => 3;
 
         public uint Year => 2025;
 
-        public string Title => "Test Grid";
+        public string Title => "Lobby";
 
         public object SolvePart1(string input)
         {
-            var grid = GridUtils.FromStringArray(input.Split(Environment.NewLine));
+            List<List<int>> banks = input.Split("\n").Select(line => line.Trim().Select(c => int.Parse(c.ToString())).ToList()).ToList();
 
-            var visualizer = new GridVisualizer<char>(grid, t => t , t => t == '.' ? ConsoleColor.Gray : ConsoleColor.Green)
+            long sum = 0;
+            foreach(List<int> bank in banks)
             {
-                OffsetX = 2,
-                OffsetY = 1
-            };
-
-            visualizer.Init("Test Santa");
-
-            visualizer.InfoPanel["Step"] = "0";
-            visualizer.InfoPanel["Empty"] = "0";
-            visualizer.InfoPanel["Filled"] = "0";
-            visualizer.InfoPanel["Failed"] = "0";
-
-            Random rnd = new();
-
-            for (int i = 0; i < 1000000; i++)
-            {
-                int x = rnd.Next(grid.Width);
-                int y = rnd.Next(grid.Height);
-
-                if(grid[x, y] == '#')
+                (int idx, int val) max1 = (bank.IndexOf(bank.Max()), bank.Max());
+                
+                if(max1.idx == bank.Count - 1)
                 {
-                    visualizer.InfoPanel["Failed"] = (int.Parse(visualizer.InfoPanel["Failed"]) + 1).ToString();
+                    int oldValue = max1.val;
+                    int oldIdx = max1.idx;
+                    bank[max1.idx] = -1;
+                    max1 = (bank.IndexOf(bank.Max()), bank.Max());
+                    bank[oldIdx] = oldValue;
                 }
 
-                grid[x, y] = '#';
+                int max2 = bank.Skip(max1.idx+1).Max();
 
-                visualizer.InfoPanel["Step"] = i.ToString();
-                visualizer.InfoPanel["Empty"] = grid.FindAll(t => t == '.').Count().ToString();
-                visualizer.InfoPanel["Filled"] = grid.FindAll(t => t == '#').Count().ToString();
+                string num = max1.val.ToString() + max2.ToString();
+                sum += long.Parse(num);
 
-                visualizer.Update();
-
-                Thread.Sleep(50);
-
-                if (grid.FindAll(t => t == '.').Count() == 0)
-                    break;
             }
-
-            return null;
+            return sum;
         }
 
         public object SolvePart2(string input)
         {
-            throw new NotImplementedException();
+            List<List<int>> banks = input.Split("\n").Select(line => line.Trim().Select(c => int.Parse(c.ToString())).ToList()).ToList();
+
+            long sum = 0;
+            foreach (List<int> bank in banks)
+            {
+                string jolt = "";
+                List<int> bankCopy = new List<int>(bank);
+
+                while (jolt.Length < 12)
+                {
+                    int highest = bankCopy.Take(bankCopy.Count - 12 + jolt.Length + 1).Max();
+                    jolt += highest.ToString();
+                    bankCopy = bankCopy.Skip(bankCopy.IndexOf(highest)+1).ToList();
+                }
+
+                sum += long.Parse(jolt);
+            }
+
+            return sum;
         }
     }
 }
