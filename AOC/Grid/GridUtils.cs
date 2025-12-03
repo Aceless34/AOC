@@ -18,5 +18,11 @@ namespace AOC.Grid
                     grid[x, y] = lines[y][x];
             return grid;
         }
+
+        public static int ManhattanDistance((int x, int y) p1, (int x, int y) p2)
+        {
+            return Math.Abs(p1.x - p2.x) + Math.Abs(p1.y - p2.y);
+        }
+
     }
 }

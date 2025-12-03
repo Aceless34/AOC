@@ -145,6 +145,64 @@ namespace AOC.Grid
             }
         }
 
+        public IEnumerable<Grid2DNode<T>> DFS(Vector2 start, Func<Grid2DNode<T>, bool> condition)
+        {
+            var visited = new HashSet<Vector2>();
+            var stack = new Stack<Grid2DNode<T>>();
+            var startNode = GetPositionNode((int)start.X, (int)start.Y);
+            stack.Push(startNode);
+            while (stack.Count > 0)
+            {
+                var currentNode = stack.Pop();
+                yield return currentNode;
+                foreach (var neighbourPos in Utils.GetNeighbouringCells(_grid, currentNode.Position))
+                {
+                    if (InBounds(neighbourPos) && !visited.Contains(neighbourPos))
+                    {
+                        var neighbourNode = GetPositionNode((int)neighbourPos.X, (int)neighbourPos.Y);
+                        if (condition(neighbourNode))
+                        {
+                            stack.Push(neighbourNode);
+                            visited.Add(neighbourPos);
+                        }
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<Grid2DNode<T>> GetDirektNeighbours(int x, int y)
+        {
+            int[][] dirs = { new[] { 0, 1 }, new[] { 0, -1 }, new[] { 1, 0 }, new[] { -1, 0 } };
+            foreach (var dir in dirs)
+            {
+                int nx = x + dir[0];
+                int ny = y + dir[1];
+                if (InBounds(nx, ny))
+                    yield return _grid[ny, nx];
+            }
+        }
+
+        public IEnumerable<Grid2DNode<T>> GetDiagonalNeighbours(int x, int y)
+        {
+            int[][] dirs = { new[] { 1, 1 }, new[] { -1, -1 }, new[] { 1, -1 }, new[] { -1, 1 } };
+            foreach (var dir in dirs)
+            {
+                int nx = x + dir[0];
+                int ny = y + dir[1];
+                if (InBounds(nx, ny))
+                    yield return _grid[ny, nx];
+            }
+        }
+
+        public IEnumerable<Grid2DNode<T>> GetAllNeighbours(int x, int y)
+        {
+            foreach (var n in GetDirektNeighbours(x, y))
+                yield return n;
+            foreach (var n in GetDiagonalNeighbours(x, y))
+                yield return n;
+        }
+
+
         public override string ToString()
         {
             var sb = new StringBuilder();
