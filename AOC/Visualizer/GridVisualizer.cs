@@ -16,8 +16,15 @@ namespace AOC.Visualizer
         private int _gridStartX;
         private int _gridStartY;
         private string _title = "";
+        private int[,] _highlightFrame;
+        private bool[,] _wasHighlightedLastFrame;
+
 
         public T?[,] _lastFrame;
+
+        public bool EnableDiffHighlight { get; set; } = false;
+        public ConsoleColor DiffHighlightColor { get; set; } = ConsoleColor.Yellow;
+        public int HighlightForFrames { get; set; } = 4;
 
         public Dictionary<string, string> InfoPanel { get; } = new();
 
@@ -34,6 +41,9 @@ namespace AOC.Visualizer
             _colorMapper = colorMapper ?? (_ => ConsoleColor.White);
 
             _lastFrame = new T?[grid.Width, grid.Height];
+            _highlightFrame = new int[grid.Width, grid.Height];
+            _wasHighlightedLastFrame = new bool[grid.Width, grid.Height];
+
         }
 
         public void Init(string title = "")
@@ -69,7 +79,6 @@ namespace AOC.Visualizer
         {
             Console.ResetColor();
 
-            // Nur geänderte Zellen zeichnen
             for (int y = 0; y < _grid.Height; y++)
             {
                 for (int x = 0; x < _grid.Width; x++)
@@ -77,27 +86,58 @@ namespace AOC.Visualizer
                     var current = _grid[x, y];
                     var old = _lastFrame[x, y];
 
-                    // Vergleich: wenn unverändert → weiter
-                    if (EqualityComparer<T>.Default.Equals(current, old))
+                    bool changed = !EqualityComparer<T>.Default.Equals(current, old);
+
+                    // 1️⃣ Änderung → Highlight starten
+                    if (changed)
+                    {
+                        _highlightFrame[x, y] = HighlightForFrames;
+                        _wasHighlightedLastFrame[x, y] = true;
+
+                        DrawCell(x, y, EnableDiffHighlight ? DiffHighlightColor : _colorMapper(current));
+                        _lastFrame[x, y] = current;
                         continue;
+                    }
 
-                    // Neue Zelle zeichnen
-                    Console.SetCursorPosition(
-                        _gridStartX + OffsetX + x,
-                        _gridStartY + OffsetY + y
-                    );
+                    // 2️⃣ Highlight läuft noch
+                    if (_highlightFrame[x, y] > 0)
+                    {
+                        _highlightFrame[x, y]--;
+                        _wasHighlightedLastFrame[x, y] = true;
 
-                    Console.ForegroundColor = _colorMapper(current);
-                    Console.Write(_charMapper(current));
+                        if (EnableDiffHighlight)
+                            DrawCell(x, y, DiffHighlightColor);
 
-                    // Speichern
-                    _lastFrame[x, y] = current;
+                        continue;
+                    }
+
+                    // 3️⃣ Highlight endet JETZT
+                    if (_wasHighlightedLastFrame[x, y])
+                    {
+                        _wasHighlightedLastFrame[x, y] = false;
+
+                        // Normale Farbe neu zeichnen
+                        DrawCell(x, y, _colorMapper(current));
+                        continue;
+                    }
+
+                    // 4️⃣ Nichts tun → Zelle bleibt wie vorher → MAXIMALE Performance
                 }
             }
 
-            Console.ResetColor();
+            DrawInfoPanel();
+        }
 
-            // InfoPanel neu zeichnen
+        private void DrawCell(int x, int y, ConsoleColor color)
+        {
+            Console.SetCursorPosition(_gridStartX + OffsetX + x,
+                                      _gridStartY + OffsetY + y);
+
+            Console.ForegroundColor = color;
+            Console.Write(_charMapper(_grid[x, y]));
+        }
+        private void DrawInfoPanel()
+        {
             int infoStartX = _gridStartX + _grid.Width + 4;
             int infoStartY = _gridStartY;
 
@@ -109,8 +149,7 @@ namespace AOC.Visualizer
                 Console.Write($"{pair.Key}: ");
 
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.Write(pair.Value + "   "); // überschreibt alte Werte
-
+                Console.Write(pair.Value + "   ");
                 i++;
             }
 
