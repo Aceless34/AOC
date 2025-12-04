@@ -75,11 +75,11 @@ namespace AOC.Grid
                         yield return _grid[y, x].Value;
         }
 
-        public IEnumerable<Grid2DNode<T>> FindAllNodes(Func<T?, bool> predicate)
+        public IEnumerable<Grid2DNode<T>> FindAllNodes(Func<Grid2DNode<T>, bool> predicate)
         {
             for (int y = 0; y < height; y++)
                 for (int x = 0; x < width; x++)
-                    if (predicate(_grid[y, x].Value))
+                    if (predicate(_grid[y, x]))
                         yield return _grid[y, x];
         }
 
